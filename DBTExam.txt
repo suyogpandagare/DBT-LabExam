@@ -1,0 +1,108 @@
+
+
+
+1.	Display all employees who are active.
+
+=> select * from emp where isActive=true;
+
+2.	Display all employees who are having any type of cards. (Use emp and emp_cards table)
+
+=> select * from emp inner join emp_cards on emp.empno=emp_cards.empid;
+
+
+3.	List the employees whose comm is null and salary does not exceed 3000.
+
+=>  select * from emp where comm is null and sal <= 3000;
+
+
+4.	Display the deptno where least number of employees are working.
+
+=>  select deptno,count(*) as 'No. of Emp Working'from emp group by deptno;
+
+
+5.	Display Name, Job & Sal for all Employees whose job is Clerk or Analyst and their Sal is not equal to 1000, 3000 & 5000.
+
+=>  select ename,job,sal from emp where job in('clerk','analyst') and sal not in(1000,3000,5000);
+
+
+6.	Find the difference of total for order 'Shipped' and order 'Cancelled' (Use ord table)
+
+=>  select sum(total)-(select sum(total) from ord where status='cancelled') 'difference' from ord where status='shipped';
+
+
+7.	Display the first word from `user name` column for all the employees.
+
+=>   select ename,`user name`,left(`user name`,1) from emp;
+
+
+8.	Display all the active employees.
+
+=>  select * from emp where isActive=true;
+
+
+9.	Display the employee’s name with his managers’ name
+
+=>   select concat(e2.ename 'employee',e1.ename as 'manager') from emp as e1 inner join emp as e2 on e1.empno=e2.mgr;
+
+
+10.	Display all employees whose salary is more than 'MARTIN' salary.
+
+=>   select * from emp where sal > (select sal from emp where ename='martin');
+
+
+------------------------------------------------------------------------------
+
+
+
+
+----------------------------------------------------------------------------
+
+Q1)    desc deptlOG;
++---------+-------------+------+-----+---------+----------------+
+| Field   | Type        | Null | Key | Default | Extra          |
++---------+-------------+------+-----+---------+----------------+
+| id      | int         | NO   | PRI | NULL    | auto_increment |
+| cDate   | date        | YES  |     | NULL    |                |
+| cTime   | date        | YES  |     | NULL    |                |
+| message | varchar(20) | YES  |     | NULL    |                |
+| deptno  | int         | YES  |     | NULL    |                |
+| dname   | varchar(10) | YES  |     | NULL    |                |
+| loc     | varchar(20) | YES  |     | NULL    |                |
+| pwd     | varchar(20) | YES  |     | NULL    |                |
++---------+-------------+------+-----+---------+----------------+
+
+=>
+
+drop trigger if exists insertDEPT;
+delimiter $
+create trigger insertDEPT AFTER INSERT ON DEPT FOR EACH ROW
+BEGIN
+    insert into deptLOG values(default,curdate(),curtime(),message,new.deptno,new.dname,new.loc,new.pwd); 
+end $
+delimiter ;
+
+-----------------------------------------------------------------------------
+
+Q2)
+=> 
+
+drop function if exists sumSalary;
+delimiter $
+create function sumSalary(_deptno int(10)) returns int
+deterministic
+
+BEGIN
+  declare x int default 0;
+  select distinct true into x from emp where emp.deptno=_deptno;
+    if(x) 
+	    then
+	        select sum(sal) into x from emp where deptno=_deptno;
+			return(x);
+	    ELSE 
+	        return (0);
+	end if;	
+end$
+
+delimiter ;
+
+-----------------------------------------------------------------------------
